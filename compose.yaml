@@ -1,0 +1,13 @@
+services:
+
+  aipt:
+    container_name: aipt
+    image: aipt
+    ports:
+      - 11432:11432
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    environment:
+      - DEBUG=False
+      - PORT=11432
+    command: python main.py --OLLAMA_HOST="http://host.docker.internal:11434" --HOST="0.0.0.0"

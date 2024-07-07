@@ -3,7 +3,23 @@ import json
 import flask
 import flask_sock
 import ollama
+import os
+import argparse
 
+parser = argparse.ArgumentParser(description="AI model Prompt Tester (AIPT for short) is a simple app that will check how suitable each model is for a given prompt.")
+parser.add_argument('--OLLAMA_HOST', default='127.0.0.1', type=str, help="Ollama host. Default: 127.0.0.1.")
+parser.add_argument('--HOST', default='0.0.0.0', type=str, help="IP on which the app will be ran.")
+parser.add_argument('--PORT', default=11432, type=int, help="Port on which the app will run")
+parser.add_argument('--DEBUG', default=False, type=bool, help="Run the app on debug")
+
+args = parser.parse_args()
+
+
+OLLAMA_HOST = args.OLLAMA_HOST if args.OLLAMA_HOST is not None else os.getenv('OLLAMA_HOST')
+if os.getenv('OLLAMA_HOST') is None: os.putenv('OLLAMA_HOST', args.OLLAMA_HOST if args.OLLAMA_HOST is not None else '127.0.0.1')
+HOST = args.HOST
+PORT = args.PORT
+DEBUG = args.DEBUG
 
 app = flask.Flask(__name__)
 websock = flask_sock.Sock(app)
@@ -106,7 +122,6 @@ def main():
 
 
 if __name__ == '__main__':
-	client = ollama.Client()
+	client = ollama.Client(OLLAMA_HOST)
 	models = tuple(map(lambda x: x["name"], client.list()["models"]))
-	
-	app.run("0.0.0.0", 11432, debug=True)
+	app.run(HOST, PORT, debug=DEBUG)
